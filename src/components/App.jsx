@@ -1,52 +1,42 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { Notify } from 'notiflix';
 
-import { Filter, ContactList, Section, ContactForm } from './index';
+import {
+  Filter,
+  ContactList,
+  Section,
+  ContactForm,
+  useLocalStorage,
+} from './index';
 
-export default class App extends Component {
-  state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
+const INITIAL_CONTACT_LIST = [
+  { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+  { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+  { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+  { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+];
+
+export default function App() {
+  const [contacts, setContacts] = useLocalStorage(
+    'contacts',
+    INITIAL_CONTACT_LIST
+  );
+  const [filter, setFilter] = useState('');
+
+  const handleChange = ({ target: { value } }) => {
+    setFilter(value.trim());
   };
 
-  componentDidMount() {
-    if (!!localStorage.getItem('contacts')) {
-      this.setState({ contacts: JSON.parse(localStorage.getItem('contacts')) });
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.contacts.length !== this.state.contacts.length) {
-    }
-    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-  }
-
-  handleChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  handleDelete = e => {
-    const { contacts } = this.state;
+  const handleDelete = e => {
     const contactId = e.target.parentNode.id;
     const contactName = contacts.find(contact => contact.id === contactId).name;
     Notify.info(`${contactName} is deleted from contacts.`);
-    this.setState(prevState => {
-      return {
-        contacts: [
-          ...prevState.contacts.filter(contact => contact.id !== contactId),
-        ],
-      };
+    setContacts(contacts => {
+      return contacts.filter(contact => contact.id !== contactId);
     });
   };
 
-  handleAddContact = contact => {
-    const { name, number, id } = contact;
-    const { contacts } = this.state;
+  const handleAddContact = ({ name, number, id }) => {
     const isNameAlreadyAdded = contacts.find(
       c => c.name.toLowerCase() === name.toLowerCase()
     );
@@ -60,36 +50,25 @@ export default class App extends Component {
         );
     } else {
       Notify.success(`${name} is added to contacts.`);
-      this.setState(prevState => {
-        return {
-          contacts: [
-            ...prevState.contacts,
-            {
-              name: name,
-              number: number,
-              id: id,
-            },
-          ],
-        };
+      setContacts(contacts => {
+        return [...contacts, { id, name, number }];
       });
     }
   };
 
-  render() {
-    return (
-      <>
-        <Section title="Phonebook">
-          <ContactForm onAddContact={this.handleAddContact} />
-        </Section>
-        <Section title="Contacts">
-          <Filter onChange={this.handleChange} />
-          <ContactList
-            contacts={this.state.contacts}
-            filter={this.state.filter}
-            onClick={this.handleDelete}
-          />
-        </Section>
-      </>
-    );
-  }
+  return (
+    <>
+      <Section title="Phonebook">
+        <ContactForm onAddContact={handleAddContact} />
+      </Section>
+      <Section title="Contacts">
+        <Filter onChange={handleChange} />
+        <ContactList
+          contacts={contacts}
+          filter={filter}
+          onClick={handleDelete}
+        />
+      </Section>
+    </>
+  );
 }
