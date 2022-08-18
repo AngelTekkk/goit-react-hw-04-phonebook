@@ -38,8 +38,6 @@ export default function App() {
   };
 
   const handleAddContact = (name, number) => {
-    console.log(name);
-    console.log(contacts);
     const id = nanoid();
     const isNameAlreadyAdded = contacts.find(
       c => c.name.toLowerCase() === name.toLowerCase()
