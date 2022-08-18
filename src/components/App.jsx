@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Notify } from 'notiflix';
+import { nanoid } from 'nanoid';
 
 import {
   Filter,
@@ -36,7 +37,10 @@ export default function App() {
     });
   };
 
-  const handleAddContact = ({ name, number, id }) => {
+  const handleAddContact = (name, number) => {
+    console.log(name);
+    console.log(contacts);
+    const id = nanoid();
     const isNameAlreadyAdded = contacts.find(
       c => c.name.toLowerCase() === name.toLowerCase()
     );

@@ -20,20 +20,15 @@ export default function ContactForm({ onAddContact }) {
     }
   };
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const loginInputId = nanoid();
-    const contact = {
-      name,
-      number,
-      id: loginInputId,
-    };
-
-    onAddContact(contact);
+  const reset = () => {
     setName('');
     setNumber('');
-    form.reset();
+  };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    onAddContact(name, number);
+    reset();
   };
 
   return (
@@ -43,11 +38,12 @@ export default function ContactForm({ onAddContact }) {
           className={s.input}
           type="text"
           name="name"
+          value={name}
           placeholder="Name"
           pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
           title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
           required
-          onInput={handleChange}
+          onChange={handleChange}
         />
       </label>
       <label className={s.label}>
@@ -55,11 +51,12 @@ export default function ContactForm({ onAddContact }) {
           className={s.input}
           type="tel"
           name="number"
+          value={number}
           placeholder="Number"
           pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
           required
-          onInput={handleChange}
+          onChange={handleChange}
         />
       </label>
       <button type="submit" className={s.button}>
